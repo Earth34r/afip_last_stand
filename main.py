@@ -28,6 +28,7 @@ class PlaceClient:
         self.rgb_colors_array = ColorMapper.generate_rgb_colors_array()
 
         self.access_token = None
+        self.access_token_expiry_timestamp = None
 
          # Image information
         self.pix = None
@@ -337,3 +338,115 @@ class PlaceClient:
             x += 1
             loopedOnce = True
         return x, y, new_rgb
+
+
+    def task(self, name, passw):
+        self.name = name
+        self.passw = passw
+        repeat_forever = True
+        while True:
+            current_timestamp = math.floor(time.time())
+            if current_timestamp >= self.access_token_expiry_timestamp:
+                logger.info(
+                    "User {}: Refreshing access token", name
+                )
+                try:
+                    username = name
+                    password = passw
+                except Exception:
+                    logger.exception(
+                        "You need to provide all required fields to worker '{}'",
+                        name,
+                    )
+                    continue
+                while True:
+                    try:
+                        client = requests.Session()
+
+                        client.headers.update(
+                            {
+                                    "User-Agent": f"{utils.select_user_agent(self)}",
+                                    "Origin": "https://www.reddit.com/",
+                                    "Sec-Fetch-Dest": "empty",
+                                    "Sec-Fetch-Mode": "cors",
+                                    "Sec-Fetch-Site": "same-origin"
+                                }
+                            )
+
+                        r = client.get(
+                            "https://www.reddit.com/login",
+                        )
+                        login_get_soup = BeautifulSoup(r.content, "html.parser")
+                        csrf_token = login_get_soup.find(
+                            "input", {"name": "csrf_token"}
+                        )["value"]
+                        data = {
+                            "username": username,
+                            "password": password,
+                            "dest": "https://new.reddit.com/",
+                            "csrf_token": csrf_token,
+                        }
+
+                        r = client.post(
+                            "https://www.reddit.com/login",
+                            data=data,
+                        )
+                        break
+                    except Exception as e:
+                        logger.error(e)
+                        logger.error(
+                            "Failed to connect to websocket, trying again in 30 seconds..."
+                        )
+                        time.sleep(30)
+                if r.status_code != HTTPStatus.OK.value:
+                    # password is probably invalid
+                    logger.exception("{} - Authorization failed!", username)
+                    logger.debug("response: {} - {}", r.status_code, r.text)
+                    continue
+                else:
+                    logger.success("{} - Authorization successful!", username)
+                logger.info("Obtaining access token...")
+                r = client.get(
+                    "https://new.reddit.com/",
+                )
+                data_str = (
+                    BeautifulSoup(r.content, features="html.parser")
+                    .find("script", {"id": "data"})
+                    .contents[0][len("window.__r = ") : -1]
+                )
+                data = json.loads(data_str)
+                response_data = data["user"]["session"]
+
+                if "error" in response_data:
+                    logger.info(
+                        "An error occured. Make sure you have the correct credentials. Response data: {}",
+                        response_data,
+                    )
+                    continue
+                self.access_token = response_data["accessToken"]
+                access_token_expires_in_seconds = response_data[
+                    "expiresIn"
+                ]  # this is usually "3600"
+
+                self.access_token_expiry_timestamp = current_timestamp + int(access_token_expires_in_seconds)
+                logger.info(
+                    "Received new access token: {}************",
+                    self.access_token,
+                )
+
+
+        board = self.get_board(self.access_token)
+
+        pixels 
+                
+
+
+        next_placement_time = {}
+        
+
+
+
+def main():
+    user = input("give username")
+    passw = input("give password")
+        
