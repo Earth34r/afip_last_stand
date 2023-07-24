@@ -494,6 +494,9 @@ class PlaceClient:
             if not repeat_forever:
                 break 
 
+    ## TODO: Add a POST/ping request to the server as an "I'm here!" ping so we can
+    ##       know how many instances are running.
+    ##       The server is not currently set up to do this.
     def update_image(self):
         json_response = requests.get("https://us0.co/config.json")
         if json_response.status_code == 200: #CHECK STATUS OF URL
