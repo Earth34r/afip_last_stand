@@ -524,8 +524,14 @@ def main():
     logger.remove()
     logger.add(sys.stderr, level="INFO")
     client = PlaceClient('config.json')
-    user = input("Reddit username: ")
-    passw = input("Password: ")
+    if ('AFIP_USER' in os.environ):
+        user = os.environ['AFIP_USER']
+    else: 
+        user = input("Reddit username: ")
+    if ('AFIP_PASS' in os.environ):
+        passw = os.environ['AFIP_PASS']
+    else: 
+        passw = input("Password: ")
     client.task(user, passw)
         
 if __name__ == "__main__":
