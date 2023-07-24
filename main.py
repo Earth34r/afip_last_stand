@@ -97,9 +97,15 @@ class PlaceClient:
         # If we do, a pixel has been successfully placed.
         if response.json()["data"] is None:
             logger.debug(response.json().get("errors"))
-            waitTime = math.floor(
-                response.json()["errors"][0]["extensions"]["nextAvailablePixelTs"]
-            )
+
+            try:
+                waitTime = math.floor(
+                    response.json()["errors"][0]["extensions"]["nextAvailablePixelTs"]
+                )
+            except KeyError as e:
+                print("Received bad response. Trying again.")
+                return 0
+
             logger.error(
                 "Failed placing pixel: rate limited",
             )
@@ -365,15 +371,9 @@ class PlaceClient:
                     logger.info(
                         "User {}: Refreshing access token", name
                     )
-                    try:
-                        username = name
-                        password = passw
-                    except Exception:
-                        logger.exception(
-                            "You need to provide all required fields to worker '{}'",
-                            name,
-                        )
-                        continue
+
+                    username = name
+                    password = passw
                     while True:
                         try:
                             client = requests.Session()
@@ -488,6 +488,8 @@ class PlaceClient:
                     repeat_forever = False
                     break
 
+                print(f"Time until next place: {time_until_next_draw}", end='\r', flush=True)
+
 
             if not repeat_forever:
                 break 
@@ -522,9 +524,11 @@ class PlaceClient:
 
 
 def main():
+    logger.remove()
+    logger.add(sys.stderr, level="INFO")
     client = PlaceClient('config.json')
-    user = input("give username")
-    passw = input("give password")
+    user = input("Reddit username: ")
+    passw = input("Password: ")
     client.task(user, passw)
         
 if __name__ == "__main__":
