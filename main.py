@@ -36,6 +36,7 @@ class PlaceClient:
         self.pix = None
         self.image_size = None
         self.image_path = self.json_data.get("image_path", "images/image.png")
+        self.update_image()
         utils.load_image(self)
 
 
