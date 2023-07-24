@@ -277,8 +277,8 @@ class PlaceClient:
         return new_img
 
     def get_unset_pixel(self):
-        originalX = x = random.randint(0, self.image_size[0]-1)
-        originalY = y = random.randint(0, self.image_size[1]-1)
+        originalX = x = 0
+        originalY = y = 0
         loopedOnce = False
         imgOutdated = True
 
@@ -493,9 +493,8 @@ class PlaceClient:
 
 def main():
     client = PlaceClient('config.json')
-    print("Welcome! AFIP reccomends using an alt for this.")
-    user = input("Reddit username: ")
-    passw = input("Password: ")
+    user = input("give username")
+    passw = input("give password")
     client.task(user, passw)
         
 if __name__ == "__main__":
