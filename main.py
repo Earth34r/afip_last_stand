@@ -437,7 +437,7 @@ class PlaceClient:
 
         board = self.get_board(self.access_token)
 
-        pixels 
+        current_x, current_y, new_rgb = self.get_unset_pixel() 
                 
 
 
