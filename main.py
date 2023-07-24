@@ -520,9 +520,6 @@ class PlaceClient:
             print(f"Failed to download image. Status code: {image_response.status_code}")
 
 
-
-
-
 def main():
     logger.remove()
     logger.add(sys.stderr, level="INFO")
