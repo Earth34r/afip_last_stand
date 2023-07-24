@@ -2,7 +2,7 @@ import math
 import requests
 import json
 import time
-import sys
+import sys, os
 import random
 from io import BytesIO
 from http import HTTPStatus
@@ -118,6 +118,8 @@ class PlaceClient:
         return waitTime / 1000
 
     def get_board(self, access_token):
+        self.update_image()
+        utils.load_image(self)
         logger.debug("Connecting and obtaining board images")
         while True:
             try:
@@ -488,6 +490,33 @@ class PlaceClient:
 
             if not repeat_forever:
                 break 
+
+    def update_image(self):
+        json_response = requests.get("https://us0.co/config.json")
+        if json_response.status_code == 200: #CHECK STATUS OF URL
+            try:
+                self.json_data = json_response.json() #PARSE JSON RESPONSE
+
+
+            except json.JSONDecodeError:
+                print("Error decoding JSON response.")
+        else:
+            print("Failed to fetch data. Status code:", json_response.status_code)
+
+        image_response = requests.get("https://us0.co/image.png")
+        if image_response.status_code == 200:
+            filename = 'image.png'
+            image_save_path = os.path.join("./", filename) #SET SAVE PATH
+
+            #SAVE IMAGE TO PATH
+            with open(image_save_path, 'wb') as f:
+                f.write(image_response.content)
+
+            print(f"Image saved successfully to {image_save_path}")
+        else:
+            print(f"Failed to download image. Status code: {image_response.status_code}")
+
+
 
 
 
