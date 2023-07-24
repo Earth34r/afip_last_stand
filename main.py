@@ -10,7 +10,7 @@ from websocket._exceptions import WebSocketConnectionClosedException # type: ign
 from PIL import Image
 
 from loguru import logger
-from bs3 import BeautifulSoup
+from bs4 import BeautifulSoup
 
 from src.mappings import ColorMapper
 from src import utils
@@ -353,7 +353,7 @@ class PlaceClient:
 
             while True:
                 current_timestamp = math.floor(time.time())
-                if current_timestamp >= self.access_token_expiry_timestamp:
+                if self.access_token_expiry_timestamp is None or current_timestamp >= self.access_token_expiry_timestamp:
                     logger.info(
                         "User {}: Refreshing access token", name
                     )
@@ -487,6 +487,10 @@ class PlaceClient:
 
 
 def main():
+    client = PlaceClient('config.json')
     user = input("give username")
     passw = input("give password")
+    client.task(user, passw)
         
+if __name__ == "__main__":
+    main()
