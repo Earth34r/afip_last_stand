@@ -418,6 +418,7 @@ class PlaceClient:
                         # password is probably invalid
                         logger.exception("{} - Authorization failed!", username)
                         logger.debug("response: {} - {}", r.status_code, r.text)
+                        time.sleep(3)
                         return
                     else:
                         logger.success("{} - Authorization successful!", username)
@@ -438,6 +439,7 @@ class PlaceClient:
                             "An error occured. Make sure you have the correct credentials. Response data: {}",
                             response_data,
                         )
+                        time.sleep(3)
                         exit()
 
                     self.access_token = response_data["accessToken"]
@@ -487,6 +489,7 @@ class PlaceClient:
                         "CANCELLED :: Rate-Limit Banned"
                     )   
                     repeat_forever = False
+                    time.sleep(5)
                     break
 
                 print(f"Time until next place: {time_until_next_draw}", end='\r', flush=True)
