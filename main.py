@@ -3,6 +3,7 @@ import requests
 import json
 import time
 import sys
+import random
 from io import BytesIO
 from http import HTTPStatus
 from websocket import create_connection # type: ignore
@@ -26,6 +27,7 @@ class PlaceClient:
         self.pixel_y_start: int = self.json_data["image_start_coords"][1]
 
         self.rgb_colors_array = ColorMapper.generate_rgb_colors_array()
+        self.legacy_transparency = True
 
         self.access_token = None
         self.access_token_expiry_timestamp = None
@@ -34,6 +36,7 @@ class PlaceClient:
         self.pix = None
         self.image_size = None
         self.image_path = self.json_data.get("image_path", "images/image.png")
+        utils.load_image(self)
 
 
     def set_pixel_and_check_ratelimit(
@@ -346,10 +349,12 @@ class PlaceClient:
         repeat_forever = True
         while True:
             # Timing shit
-            pixel_place_frequency = 315 # + random.random()*60
+            pixel_place_frequency = 315 + random.random()*60
 
             current_time = math.floor(time.time())
             next_placement_time = current_time + pixel_place_frequency
+            if self.access_token is None:
+                next_placement_time = current_time
 
             while True:
                 current_timestamp = math.floor(time.time())
