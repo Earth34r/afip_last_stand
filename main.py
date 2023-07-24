@@ -279,8 +279,8 @@ class PlaceClient:
         return new_img
 
     def get_unset_pixel(self):
-        originalX = x = 0
-        originalY = y = 0
+        originalX = x = random.randint(0, self.image_size[0]-1)
+        originalY = y = random.randint(0, self.image_size[1]-1)
         loopedOnce = False
         imgOutdated = True
 
@@ -298,6 +298,7 @@ class PlaceClient:
                 )
                 time.sleep(10)
                 imgOutdated = True
+
 
             if imgOutdated:
                 boarding = self.get_board(self.access_token)
