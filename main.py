@@ -225,6 +225,8 @@ class PlaceClient:
         imgs = []
         logger.debug("A total of {} canvas sockets opened", len(canvas_sockets))
 
+
+        
         while len(canvas_sockets) > 0:
             temp = json.loads(ws.recv())
             logger.debug("Waiting for WebSocket message")
@@ -308,8 +310,18 @@ class PlaceClient:
 
 
             if imgOutdated:
-                boarding = self.get_board(self.access_token)
-                pix2 = boarding.convert("RGB").load()
+                try:
+                    boarding = self.get_board(self.access_token)
+                    pix2 = boarding.convert("RGB").load()
+                except Exception:
+                    if not loopedOnce:
+                        pass
+                    else:
+                        logger.info("Couldnt get board, retrying in 10 seconds")
+                        time.sleep(10)
+                        x = originalX
+                        y = originalY
+                        continue
                 imgOutdated = False
 
             logger.debug("{}, {}", x + self.pixel_x_start, y + self.pixel_y_start)
